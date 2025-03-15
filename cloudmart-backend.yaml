@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudmart-backend-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudmart-backend-app
+  template:
+    metadata:
+      labels:
+        app: cloudmart-backend-app
+    spec:
+      serviceAccountName: cloudmart-dev-eks-main-sa
+      containers:
+      - name: cloudmart-backend-app
+        image: CONTAINER_IMAGE
+        envFrom:
+        - configMapRef:
+            name: cloudmart-dev-cfg-tables-cm
+        env:
+        - name: PORT
+          value: "5000"
+        - name: AWS_REGION
+          value: "us-east-1"
+        - name: BEDROCK_AGENT_ID
+          value: "xxxxxx"
+        - name: BEDROCK_AGENT_ALIAS_ID
+          value: "xxxx"
+        - name: OPENAI_API_KEY
+          value: "xxxxxx"
+        - name: OPENAI_ASSISTANT_ID
+          value: "xxxx"
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudmart-backend-app-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: cloudmart-backend-app
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
